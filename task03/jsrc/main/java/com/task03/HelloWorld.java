@@ -37,6 +37,13 @@ public class HelloWorld implements RequestHandler<APIGatewayV2HTTPEvent, APIGate
 
 	@Override
 	public APIGatewayV2HTTPResponse handleRequest(APIGatewayV2HTTPEvent requestEvent, Context context) {
+		// Logging to help with debugging
+		System.out.println("Received request: " + requestEvent);
+
+		if (requestEvent == null || requestEvent.getRequestContext() == null || requestEvent.getRequestContext().getHttp() == null) {
+			return buildResponse(SC_BAD_REQUEST, "{\"statusCode\": 400, \"message\": \"Invalid request context\"}");
+		}
+
 		RouteKey routeKey = new RouteKey(getMethod(requestEvent), getPath(requestEvent));
 		return routeHandlers.getOrDefault(routeKey, this::notFoundResponse).apply(requestEvent);
 	}
@@ -71,12 +78,5 @@ public class HelloWorld implements RequestHandler<APIGatewayV2HTTPEvent, APIGate
 	}
 
 	private record RouteKey(String method, String path) {
-	}
-
-	private record Body(String statusCode, String message) {
-		@Override
-		public String toString() {
-			return "{\"statusCode\": " + statusCode + ", \"message\": \"" + message + "\"}";
-		}
 	}
 }
