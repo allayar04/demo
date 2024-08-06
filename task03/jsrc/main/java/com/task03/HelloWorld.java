@@ -43,7 +43,7 @@ public class HelloWorld implements RequestHandler<APIGatewayProxyRequestEvent, C
 	public CustomAPIGatewayProxyResponseEvent handleRequest(
 			APIGatewayProxyRequestEvent apiGatewayProxyRequestEvent, Context context) {
 		RouteKey routeKey = new RouteKey(getMethod(apiGatewayProxyRequestEvent), getPath(apiGatewayProxyRequestEvent));
-		return (CustomAPIGatewayProxyResponseEvent) routeHandlers.getOrDefault(routeKey, this::handleGetHello);
+		return routeHandlers.getOrDefault(routeKey, this::handleGetHello).apply(apiGatewayProxyRequestEvent);
 	}
 
 	private CustomAPIGatewayProxyResponseEvent handleGetHello(APIGatewayProxyRequestEvent requestEvent) {
