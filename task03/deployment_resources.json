@@ -32,7 +32,7 @@
       "/hello": {
         "enable_cors": false,
         "GET": {
-          "authorization_type": "AWS_IAM",
+          "authorization_type": "NONE",
           "integration_type": "lambda",
           "api_key_required": false,
           "method_request_parameters": {},
