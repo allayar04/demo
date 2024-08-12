@@ -1,0 +1,26 @@
+{
+  "api_handler" : {
+    "name" : "api_handler",
+    "lambda_path" : "/Users/allayar/Desktop/EPAM Work/demo/task05",
+    "version" : "1.0.0",
+    "func_name" : "com.task05.ApiHandler",
+    "deployment_package" : "task05-1.0.0.jar",
+    "resource_type" : "lambda",
+    "runtime" : "java17",
+    "architectures" : [ "arm64" ],
+    "iam_role_name" : "api_handler-role",
+    "memory" : 1024,
+    "timeout" : 300,
+    "subnet_ids" : [ ],
+    "security_group_ids" : [ ],
+    "dependencies" : [ ],
+    "event_sources" : [ ],
+    "env_variables" : {
+      "region" : "${region}",
+      "table" : "${target_table}"
+    },
+    "publish_version" : false,
+    "logs_expiration" : "${logs_expiration}",
+    "snap_start" : "None"
+  }
+}

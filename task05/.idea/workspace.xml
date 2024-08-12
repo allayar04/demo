@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c50d991e-cf1e-46a7-88b2-e9a46b785858" name="Changes" comment="done" />
+    <list default="true" id="95a836b6-878a-4c98-a438-355792eefc2e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../task04/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../task04/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,9 +19,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
+  &quot;associatedIndex&quot;: 7
 }</component>
-  <component name="ProjectId" id="2kQ3Azl0L8JNcIZbIpcfLYr63SE" />
+  <component name="ProjectId" id="2kTxVt7PpIdSmxmQwCPCb7klwoU" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -30,54 +32,33 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/allayar/Desktop/EPAM Work/demo/task04&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/allayar/Desktop/EPAM Work/demo/task05&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.poratu.idea.plugins.tomcat.setting.TomcatServersConfigurable&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="jdk-11.0.22-corretto-11.0.22-3183f394aec4-fdae186d" />
-        <option value="jdk-11.0.22-corretto-11.0.22-4caba194b151-396cc1b2" />
-      </set>
-    </attachedChunks>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="c50d991e-cf1e-46a7-88b2-e9a46b785858" name="Changes" comment="" />
-      <created>1723201835905</created>
+      <changelist id="95a836b6-878a-4c98-a438-355792eefc2e" name="Changes" comment="" />
+      <created>1723321395378</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1723201835905</updated>
-      <workItem from="1723201837412" duration="7860000" />
-      <workItem from="1723233308307" duration="5264000" />
+      <updated>1723321395378</updated>
+      <workItem from="1723321397475" duration="547000" />
+      <workItem from="1723321965782" duration="3455000" />
+      <workItem from="1723399088137" duration="41000" />
+      <workItem from="1723399158237" duration="579000" />
+      <workItem from="1723399781458" duration="1102000" />
     </task>
-    <task id="LOCAL-00001" summary="done">
-      <option name="closed" value="true" />
-      <created>1723318164057</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1723318164057</updated>
-    </task>
-    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="done" />
-    <option name="LAST_COMMIT_MESSAGE" value="done" />
   </component>
 </project>
