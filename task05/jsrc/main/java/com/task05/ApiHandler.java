@@ -21,7 +21,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import com.google.gson.Gson;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +40,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 	public static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final int SC_CREATED = 201;
+	private static final int SC_BAD_REQUEST = 400;
 	private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
 			.withRegion("eu-central-1")
 			.build();
@@ -48,6 +48,12 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 	@Override
 	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+		if (request.getBody() == null) {
+			return new APIGatewayProxyResponseEvent()
+					.withStatusCode(SC_BAD_REQUEST)
+					.withBody("{\"message\": \"Request body is missing\"}");
+		}
+
 		context.getLogger().log("Request: " + request.getBody());
 		Event event;
 
@@ -57,7 +63,15 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 					Event.class
 			);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			return new APIGatewayProxyResponseEvent()
+					.withStatusCode(SC_BAD_REQUEST)
+					.withBody("{\"message\": \"Invalid request body\"}");
+		}
+
+		if (event.getPrincipalId() == 0 || event.getBody() == null) {
+			return new APIGatewayProxyResponseEvent()
+					.withStatusCode(SC_BAD_REQUEST)
+					.withBody("{\"message\": \"Missing required fields: principalId or content\"}");
 		}
 
 		context.getLogger().log("Event before: " + event);
@@ -65,6 +79,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		event.setCreatedAt(formatUsingJodaTime(org.joda.time.LocalDate.now()));
 		context.getLogger().log("Event after: " + event);
 
+		// Add dynamoDB item
 		Map<String, AttributeValue> item = new HashMap<>();
 		item.put("id", new AttributeValue().withS(event.getId()));
 		item.put("principalId", new AttributeValue().withN((String.valueOf(event.getPrincipalId()))));
@@ -84,8 +99,10 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		try {
 			String responseBody = objectMapper.writeValueAsString(responseObj);
 			response.setBody(responseBody);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (JsonProcessingException e) {
+			return new APIGatewayProxyResponseEvent()
+					.withStatusCode(SC_BAD_REQUEST)
+					.withBody("{\"message\": \"Failed to serialize response\"}");
 		}
 
 		return response;
