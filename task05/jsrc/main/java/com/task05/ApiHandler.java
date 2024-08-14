@@ -20,8 +20,6 @@ import com.syndicate.deployment.model.RetentionSetting;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 
-import com.google.gson.Gson;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -51,25 +49,31 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		context.getLogger().log("Received request: " + request);
 
+		// Log headers and more details for debugging
+		context.getLogger().log("Headers: " + request.getHeaders());
+		context.getLogger().log("Path parameters: " + request.getPathParameters());
+		context.getLogger().log("Query string parameters: " + request.getQueryStringParameters());
+		context.getLogger().log("Stage variables: " + request.getStageVariables());
+
 		// Check if request body is present
-		if (request.getBody() == null || request.getBody().isEmpty()) {
-			return createResponse(SC_CREATED, "{\"message\": \"Request body is missing\"}");
+		String requestBody = request.getBody();
+		if (requestBody == null || requestBody.isEmpty()) {
+			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Request body is missing\"}");
 		}
 
-		context.getLogger().log("Request body: " + request.getBody());
+		context.getLogger().log("Request body: " + requestBody);
 
-		Event event = null;
-
+		Event event;
 		try {
-			event = objectMapper.readValue(request.getBody().replace("content", "body"), Event.class);
+			event = objectMapper.readValue(requestBody.replace("content", "body"), Event.class);
 		} catch (JsonProcessingException e) {
 			context.getLogger().log("Error parsing request body: " + e.getMessage());
-			return createResponse(SC_CREATED, "{\"message\": \"Invalid request body\"}");
+			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Invalid request body\"}");
 		}
 
 		if (event.getPrincipalId() == 0 || event.getBody() == null) {
 			context.getLogger().log("Missing required fields: principalId or content");
-			return createResponse(SC_CREATED, "{\"message\": \"Missing required fields: principalId or content\"}");
+			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Missing required fields: principalId or content\"}");
 		}
 
 		context.getLogger().log("Parsed event: " + event);
@@ -92,16 +96,17 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		client.putItem(new PutItemRequest().withTableName(tableName).withItem(item));
 		context.getLogger().log("Item added to table: " + tableName);
 
-		Response responseObj = new Response(SC_CREATED, event);
-
 		APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
 		response.setStatusCode(SC_CREATED);
 		try {
-			String responseBody = objectMapper.writeValueAsString(responseObj);
+			String responseBody = objectMapper.writeValueAsString(event);
 			response.setBody(responseBody);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+		} catch (JsonProcessingException e) {
+			context.getLogger().log("Error serializing response body: " + e.getMessage());
+			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Failed to serialize response\"}");
 		}
+
+		context.getLogger().log("Response: " + response.getBody());
 		return response;
 	}
 
@@ -160,41 +165,12 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		@Override
 		public String toString() {
-			return new Gson().toJson(this);
-		}
-	}
-
-	private static class Response {
-
-		@JsonProperty("statusCode")
-		private int statusCode;
-		@JsonProperty("event")
-		private ApiHandler.Event event;
-
-		public Response(int statusCode, ApiHandler.Event event) {
-			this.statusCode = statusCode;
-			this.event = event;
-		}
-
-		public int getStatusCode() {
-			return statusCode;
-		}
-
-		public void setStatusCode(int statusCode) {
-			this.statusCode = statusCode;
-		}
-
-		public ApiHandler.Event getEvent() {
-			return event;
-		}
-
-		public void setEvent(ApiHandler.Event event) {
-			this.event = event;
-		}
-		@Override
-		public String toString() {
-			return "{" + "\"statusCode\": " + statusCode + ","
-					+ "\"event\": " + getEvent().toString() + "}";
+			return "{" +
+					"\"id\":\"" + id + '\"' +
+					", \"principalId\":\"" + principalId + '\"' +
+					", \"createdAt\":\"" + createdAt + '\"' +
+					", \"body\":" + body +
+					'}';
 		}
 	}
 }
