@@ -19,6 +19,7 @@ import com.syndicate.deployment.model.DeploymentRuntime;
 import com.syndicate.deployment.model.RetentionSetting;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
+
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -38,55 +39,55 @@ import java.util.UUID;
 )
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
-	public static final ObjectMapper objectMapper = new ObjectMapper();
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final int SC_CREATED = 201;
 	private static final int SC_BAD_REQUEST = 400;
 	private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
 			.withRegion("eu-central-1")
 			.build();
-	private final String tableName = "Events";
+	private final String tableName = "cmtr-d2f4ab85-Events-test";
 
 	@Override
 	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		context.getLogger().log("Received request: " + request);
 
-		if (request.getBody() == null) {
-			return new APIGatewayProxyResponseEvent()
-					.withStatusCode(SC_CREATED)
-					.withBody("{\"message\": \"Request body is missing\"}");
+		// Check if request body is present
+		if (request.getBody() == null || request.getBody().isEmpty()) {
+			return createResponse(SC_CREATED, "{\"message\": \"Request body is missing\"}");
 		}
 
 		context.getLogger().log("Request body: " + request.getBody());
+
 		Event event;
 
 		try {
-			event = objectMapper.readValue(
-					request.getBody().replace("content", "body"),
-					Event.class
-			);
+			event = objectMapper.readValue(request.getBody().replace("content", "body"), Event.class);
 		} catch (JsonProcessingException e) {
-			return new APIGatewayProxyResponseEvent()
-					.withStatusCode(SC_CREATED)
-					.withBody("{\"message\": \"Invalid request body\"}");
+			context.getLogger().log("Error parsing request body: " + e.getMessage());
+			return createResponse(SC_CREATED, "{\"message\": \"Invalid request body\"}");
 		}
 
 		if (event.getPrincipalId() == 0 || event.getBody() == null) {
-			return new APIGatewayProxyResponseEvent()
-					.withStatusCode(SC_CREATED)
-					.withBody("{\"message\": \"Missing required fields: principalId or content\"}");
+			context.getLogger().log("Missing required fields: principalId or content");
+			return createResponse(SC_CREATED, "{\"message\": \"Missing required fields: principalId or content\"}");
 		}
 
 		context.getLogger().log("Parsed event: " + event);
+
 		event.setId(UUID.randomUUID().toString());
 		event.setCreatedAt(formatUsingJodaTime(org.joda.time.LocalDate.now()));
+
 		context.getLogger().log("Processed event: " + event);
 
 		Map<String, AttributeValue> item = new HashMap<>();
 		item.put("id", new AttributeValue().withS(event.getId()));
-		item.put("principalId", new AttributeValue().withN((String.valueOf(event.getPrincipalId()))));
+		item.put("principalId", new AttributeValue().withN(String.valueOf(event.getPrincipalId())));
 		item.put("createdAt", new AttributeValue().withS(event.getCreatedAt()));
+
 		Map<String, AttributeValue> bodyMap = new HashMap<>();
-		event.getBody().forEach((key, value) -> bodyMap.put(key, new AttributeValue().withS(value)));
+		for (Map.Entry<String, String> entry : event.getBody().entrySet()) {
+			bodyMap.put(entry.getKey(), new AttributeValue().withS(entry.getValue()));
+		}
 		item.put("body", new AttributeValue().withM(bodyMap));
 
 		context.getLogger().log("DynamoDB item: " + item);
@@ -95,20 +96,16 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		Response responseObj = new Response(SC_CREATED, event);
 
-		APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-		response.setStatusCode(SC_CREATED);
-		try {
-			String responseBody = objectMapper.writeValueAsString(responseObj);
-			response.setBody(responseBody);
-		} catch (Exception e) {
-			context.getLogger().log("Serialization error: " + e.getMessage());
-			return new APIGatewayProxyResponseEvent()
-					.withStatusCode(SC_BAD_REQUEST)
-					.withBody("{\"message\": \"Failed to serialize response\"}");
-		}
+		APIGatewayProxyResponseEvent response = createResponse(SC_CREATED, toJson(responseObj));
+		context.getLogger().log("Response: " + response.getBody());
 
-		context.getLogger().log("Response: " + response);
 		return response;
+	}
+
+	private APIGatewayProxyResponseEvent createResponse(int statusCode, String body) {
+		return new APIGatewayProxyResponseEvent()
+				.withStatusCode(statusCode)
+				.withBody(body);
 	}
 
 	public static String formatUsingJodaTime(org.joda.time.LocalDate localDate) {
@@ -189,6 +186,14 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		public void setEvent(Event event) {
 			this.event = event;
+		}
+	}
+
+	private String toJson(Object obj) {
+		try {
+			return objectMapper.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException("Error serializing JSON", e);
 		}
 	}
 }
