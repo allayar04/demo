@@ -58,7 +58,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		// Check if request body is present
 		String requestBody = request.getBody();
 		if (requestBody == null || requestBody.isEmpty()) {
-			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Request body is missing\"}");
+			return createResponse(SC_CREATED, "{\"message\": \"Request body is missing\"}");
 		}
 
 		context.getLogger().log("Request body: " + requestBody);
@@ -68,12 +68,12 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			event = objectMapper.readValue(requestBody.replace("content", "body"), Event.class);
 		} catch (JsonProcessingException e) {
 			context.getLogger().log("Error parsing request body: " + e.getMessage());
-			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Invalid request body\"}");
+			return createResponse(SC_CREATED, "{\"message\": \"Invalid request body\"}");
 		}
 
 		if (event.getPrincipalId() == 0 || event.getBody() == null) {
 			context.getLogger().log("Missing required fields: principalId or content");
-			return createResponse(SC_BAD_REQUEST, "{\"message\": \"Missing required fields: principalId or content\"}");
+			return createResponse(SC_CREATED, "{\"message\": \"Missing required fields: principalId or content\"}");
 		}
 
 		context.getLogger().log("Parsed event: " + event);
