@@ -50,12 +50,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	@Override
 	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		context.getLogger().log("Received request: " + request);
-
-		// Check if request body is present
-		if (request.getBody() == null || request.getBody().isEmpty()) {
-			return createResponse(SC_CREATED, "{\"message\": \"Request body is missing\"}");
-		}
-
 		context.getLogger().log("Request body: " + request.getBody());
 
 		Event event = null;
@@ -63,13 +57,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		try {
 			event = objectMapper.readValue(request.getBody().replace("content", "body"), Event.class);
 		} catch (JsonProcessingException e) {
-			context.getLogger().log("Error parsing request body: " + e.getMessage());
-			return createResponse(SC_CREATED, "{\"message\": \"Invalid request body\"}");
-		}
-
-		if (event.getPrincipalId() == 0 || event.getBody() == null) {
-			context.getLogger().log("Missing required fields: principalId or content");
-			return createResponse(SC_CREATED, "{\"message\": \"Missing required fields: principalId or content\"}");
+			throw new RuntimeException();
 		}
 
 		context.getLogger().log("Parsed event: " + event);
@@ -95,7 +83,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		Response responseObj = new Response(SC_CREATED, event);
 
 		APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-		response.setStatusCode(201);
+		response.setStatusCode(SC_CREATED);
 		try {
 			String responseBody = objectMapper.writeValueAsString(responseObj);
 			response.setBody(responseBody);
@@ -104,13 +92,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		}
 		return response;
 	}
-
-	private APIGatewayProxyResponseEvent createResponse(int statusCode, String body) {
-		return new APIGatewayProxyResponseEvent()
-				.withStatusCode(statusCode)
-				.withBody(body);
-	}
-
 	public static String formatUsingJodaTime(org.joda.time.LocalDate localDate) {
 		org.joda.time.format.DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
 		return formatter.print(localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC));
@@ -165,12 +146,13 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 	}
 
 	private static class Response {
+
 		@JsonProperty("statusCode")
 		private int statusCode;
 		@JsonProperty("event")
-		private Event event;
+		private ApiHandler.Event event;
 
-		public Response(int statusCode, Event event) {
+		public Response(int statusCode, ApiHandler.Event event) {
 			this.statusCode = statusCode;
 			this.event = event;
 		}
@@ -183,12 +165,17 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 			this.statusCode = statusCode;
 		}
 
-		public Event getEvent() {
+		public ApiHandler.Event getEvent() {
 			return event;
 		}
 
-		public void setEvent(Event event) {
+		public void setEvent(ApiHandler.Event event) {
 			this.event = event;
+		}
+		@Override
+		public String toString() {
+			return "{" + "\"statusCode\": " + statusCode + ","
+					+ "\"event\": " + getEvent().toString() + "}";
 		}
 	}
 }
