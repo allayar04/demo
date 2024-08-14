@@ -58,7 +58,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		context.getLogger().log("Request body: " + request.getBody());
 
-		Event event;
+		Event event = null;
 
 		try {
 			event = objectMapper.readValue(request.getBody().replace("content", "body"), Event.class);
@@ -85,9 +85,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 		item.put("createdAt", new AttributeValue().withS(event.getCreatedAt()));
 
 		Map<String, AttributeValue> bodyMap = new HashMap<>();
-		for (Map.Entry<String, String> entry : event.getBody().entrySet()) {
-			bodyMap.put(entry.getKey(), new AttributeValue().withS(entry.getValue()));
-		}
+		event.getBody().forEach((key, value) -> bodyMap.put(key, new AttributeValue().withS(value)));
 		item.put("body", new AttributeValue().withM(bodyMap));
 
 		context.getLogger().log("DynamoDB item: " + item);
@@ -96,9 +94,14 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		Response responseObj = new Response(SC_CREATED, event);
 
-		APIGatewayProxyResponseEvent response = createResponse(SC_CREATED, toJson(responseObj));
-		context.getLogger().log("Response: " + response.getBody());
-
+		APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+		response.setStatusCode(201);
+		try {
+			String responseBody = objectMapper.writeValueAsString(responseObj);
+			response.setBody(responseBody);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 		return response;
 	}
 
@@ -186,14 +189,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, A
 
 		public void setEvent(Event event) {
 			this.event = event;
-		}
-	}
-
-	private String toJson(Object obj) {
-		try {
-			return objectMapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException("Error serializing JSON", e);
 		}
 	}
 }
