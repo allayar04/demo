@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariable;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariables;
@@ -52,8 +53,9 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
     Event event = new Event(json.getInt("principalId"), json.getJSONObject("body").toMap());
 
 		context.getLogger().log("Parsed event: " + event);
+
 		if (requestBody == null || requestBody.isEmpty()) {
-			return new Response(SC_CREATED, new Event(0, new HashMap<>()));
+			return createResponse(SC_CREATED, event);
 		}
 
 		event.setId(UUID.randomUUID().toString());
@@ -83,5 +85,9 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
 	public static String formatUsingJodaTime(org.joda.time.LocalDate localDate) {
 		org.joda.time.format.DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
 		return formatter.print(localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC));
+	}
+
+	private Response createResponse(int statusCode, Event body) {
+		return new Response(statusCode, body);
 	}
 }
