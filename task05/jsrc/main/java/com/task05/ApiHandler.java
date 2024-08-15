@@ -35,12 +35,12 @@ import org.json.JSONObject;
 )
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
 
-	private static final ObjectMapper objectMapper = new ObjectMapper();
+	//private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final int SC_CREATED = 201;
 	private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
 			.withRegion("eu-central-1")
 			.build();
-	private final String tableName = "cmtr-d2f4ab85-Events"; //-test
+	private final String tableName = "cmtr-d2f4ab85-Events-test"; //-test
 
 	@Override
 	public Response handleRequest(APIGatewayProxyRequestEvent request, Context context) {
