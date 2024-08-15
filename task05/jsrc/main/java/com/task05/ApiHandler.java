@@ -52,6 +52,9 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
     Event event = new Event(json.getInt("principalId"), json.getJSONObject("body").toMap());
 
 		context.getLogger().log("Parsed event: " + event);
+		if (requestBody == null || requestBody.isEmpty()) {
+			return new Response(SC_CREATED, new Event(0, new HashMap<>()));
+		}
 
 		event.setId(UUID.randomUUID().toString());
 		event.setCreatedAt(formatUsingJodaTime(org.joda.time.LocalDate.now()));
