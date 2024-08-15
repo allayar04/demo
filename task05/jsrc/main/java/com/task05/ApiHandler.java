@@ -54,9 +54,6 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
 
 		context.getLogger().log("Parsed event: " + event);
 
-		if (requestBody == null || requestBody.isEmpty()) {
-			return createResponse(SC_CREATED, event);
-		}
 
 		event.setId(UUID.randomUUID().toString());
 		event.setCreatedAt(formatUsingJodaTime(org.joda.time.LocalDate.now()));
@@ -76,6 +73,9 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
 		client.putItem(new PutItemRequest().withTableName(tableName).withItem(item));
 		context.getLogger().log("Item added to table: " + tableName);
 
+		APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
+		apiResponse.setStatusCode(SC_CREATED);
+
 		Response response = new Response(SC_CREATED, event);
 
 		context.getLogger().log("Response: " + response);
@@ -85,9 +85,5 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
 	public static String formatUsingJodaTime(org.joda.time.LocalDate localDate) {
 		org.joda.time.format.DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
 		return formatter.print(localDate.toDateTimeAtStartOfDay(DateTimeZone.UTC));
-	}
-
-	private Response createResponse(int statusCode, Event body) {
-		return new Response(statusCode, body);
 	}
 }
