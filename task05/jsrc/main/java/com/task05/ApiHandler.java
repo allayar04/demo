@@ -35,7 +35,8 @@ import org.json.JSONObject;
 		@EnvironmentVariable(key = "region", value = "${region}"),
 		@EnvironmentVariable(key = "table", value = "${target_table}")}
 )
-public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
+public class ApiHandler implements
+		RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final int SC_CREATED = 201;
@@ -45,7 +46,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
 	private final String tableName = "cmtr-d2f4ab85-Events-test"; //-test
 
 	@Override
-	public Response handleRequest(APIGatewayProxyRequestEvent request, Context context) {
+	public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent request, Context context) {
 		context.getLogger().log("Received request: " + request);
 		String requestBody = request.getBody();
 		context.getLogger().log("Request body: " + requestBody);
@@ -86,7 +87,7 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
     }
 
     context.getLogger().log("Response: " + response);
-		return response;
+		return apiResponse;
 	}
 
 	public static String formatUsingJodaTime(org.joda.time.LocalDate localDate) {
