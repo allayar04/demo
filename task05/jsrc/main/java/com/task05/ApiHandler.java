@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariable;
 import com.syndicate.deployment.annotations.environment.EnvironmentVariables;
@@ -36,7 +37,7 @@ import org.json.JSONObject;
 )
 public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
 
-	//private static final ObjectMapper objectMapper = new ObjectMapper();
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 	private static final int SC_CREATED = 201;
 	private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
 			.withRegion("eu-central-1")
@@ -73,12 +74,18 @@ public class ApiHandler implements RequestHandler<APIGatewayProxyRequestEvent, R
 		client.putItem(new PutItemRequest().withTableName(tableName).withItem(item));
 		context.getLogger().log("Item added to table: " + tableName);
 
-		APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
-		apiResponse.setStatusCode(SC_CREATED);
 
 		Response response = new Response(SC_CREATED, event);
 
-		context.getLogger().log("Response: " + response);
+		APIGatewayProxyResponseEvent apiResponse = new APIGatewayProxyResponseEvent();
+		apiResponse.setStatusCode(SC_CREATED);
+    try {
+      apiResponse.setBody(objectMapper.writeValueAsString(response));
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+
+    context.getLogger().log("Response: " + response);
 		return response;
 	}
 
