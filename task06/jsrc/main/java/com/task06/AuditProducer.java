@@ -14,6 +14,7 @@ import com.syndicate.deployment.annotations.environment.EnvironmentVariables;
 import com.syndicate.deployment.annotations.events.DynamoDbTriggerEventSource;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.resources.DependsOn;
+import com.syndicate.deployment.model.DeploymentRuntime;
 import com.syndicate.deployment.model.ResourceType;
 import com.syndicate.deployment.model.RetentionSetting;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import org.joda.time.format.ISODateTimeFormat;
 @LambdaHandler(
     lambdaName = "audit_producer",
 	roleName = "audit_producer-role",
+		runtime = DeploymentRuntime.JAVA17,
 	isPublishVersion = false,
 	logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
