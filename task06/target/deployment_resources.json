@@ -6,7 +6,7 @@
     "func_name" : "com.task06.AuditProducer",
     "deployment_package" : "task06-1.0.0.jar",
     "resource_type" : "lambda",
-    "runtime" : "java11",
+    "runtime" : "java17",
     "architectures" : [ "x86_64" ],
     "iam_role_name" : "audit_producer-role",
     "memory" : 1024,
