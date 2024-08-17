@@ -40,7 +40,7 @@ public class UuidGenerator implements RequestHandler<ScheduledEvent, String> {
 
   private final AmazonS3 clientS3 = AmazonS3ClientBuilder.standard().build();
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private final String bucketName = System.getenv("target_bucket");
+  private final String bucketName = System.getenv("cmtr-d2f4ab85-uuid-storage-test");
 
   @Override
   public String handleRequest(ScheduledEvent event, Context context) {
