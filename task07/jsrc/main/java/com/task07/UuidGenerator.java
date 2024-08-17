@@ -37,11 +37,11 @@ public class UuidGenerator implements RequestHandler<ScheduledEvent, String> {
 
 	private final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final String bucketName = System.getenv("cmtr-d2f4ab85-uuid-storage-test");
+	public final String bucketName = "cmtr-d2f4ab85-uuid-storage-test";
 
-	@Override
+  @Override
 	public String handleRequest(ScheduledEvent event, Context context) {
-		List<String> uuids = generateUUIDs(10);
+		List<String> uuids = generateUUIDs();
 
 		try {
 			String fileName = Instant.now().toString();
@@ -67,9 +67,10 @@ public class UuidGenerator implements RequestHandler<ScheduledEvent, String> {
 		}
 	}
 
-	private List<String> generateUUIDs(int count) {
-		List<String> uuids = new ArrayList<>(count);
-		for (int i = 0; i < count; i++) {
+	private List<String> generateUUIDs() {
+    int countOfUuids = 10;
+    List<String> uuids = new ArrayList<>(countOfUuids);
+		for (int i = 0; i < countOfUuids; i++) {
 			uuids.add(UUID.randomUUID().toString());
 		}
 		return uuids;
