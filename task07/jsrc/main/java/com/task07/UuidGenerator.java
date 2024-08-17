@@ -15,64 +15,60 @@ import com.syndicate.deployment.model.DeploymentRuntime;
 import com.syndicate.deployment.model.RetentionSetting;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.joda.time.Instant;
 
 @LambdaHandler(lambdaName = "uuid_generator",
-		roleName = "uuid_generator-role",
-		runtime = DeploymentRuntime.JAVA17,
-		isPublishVersion = false,
-		logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
+    roleName = "uuid_generator-role",
+    runtime = DeploymentRuntime.JAVA17,
+    isPublishVersion = false,
+    logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
 @EventBridgeRuleSource(targetRule = "uuid_trigger")
 @EnvironmentVariables(value = {
-		@EnvironmentVariable(key = "region", value = "${region}"),
-		@EnvironmentVariable(key = "target_bucket", value = "${target_bucket}}")
+    @EnvironmentVariable(key = "region", value = "${region}"),
+    @EnvironmentVariable(key = "target_bucket", value = "${target_bucket}}")
 })
 public class UuidGenerator implements RequestHandler<ScheduledEvent, String> {
 
-	private final AmazonS3 s3Client = AmazonS3ClientBuilder.standard().build();
-	private final ObjectMapper objectMapper = new ObjectMapper();
-	public final String bucketName = "cmtr-d2f4ab85-uuid-storage-test";
+  private final AmazonS3 clientS3 = AmazonS3ClientBuilder.standard().build();
+  private final ObjectMapper objectMapper = new ObjectMapper();
+  public final String bucketName = "cmtr-d2f4ab85-uuid-storage-test";
 
   @Override
-	public String handleRequest(ScheduledEvent event, Context context) {
-		List<String> uuids = generateUUIDs();
+  public String handleRequest(ScheduledEvent event, Context context) {
+    List<String> uuids = generateUUIDs();
+    try {
+      String fileName = Instant.now().toString();
+      Map<String, List<String>> idsMap = new HashMap<>();
+      idsMap.put("ids", uuids);
+      String content = objectMapper.writeValueAsString(idsMap);
+      context.getLogger().log("Content: " + content);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(
+          content.getBytes(StandardCharsets.UTF_8));
+      ObjectMetadata metadata = new ObjectMetadata();
+      metadata.setContentType("application/json");
+      metadata.setContentLength(content.length());
+      context.getLogger().log("Uploading to S3");
+      clientS3.putObject(bucketName, fileName, inputStream, metadata);
+      context.getLogger().log("Successfully uploaded");
+      return "Execution completed successfully";
+    } catch (Exception e) {
+      context.getLogger().log("Error uploading to S3: " + e.getMessage());
+      throw new RuntimeException(e);
+    }
+  }
 
-		try {
-			String fileName = Instant.now().toString();
-			Map<String, List<String>> idsMap = new HashMap<>();
-			idsMap.put("ids", uuids);
-			String content = objectMapper.writeValueAsString(idsMap);
-
-			context.getLogger().log("Content: " + content);
-
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-			ObjectMetadata metadata = new ObjectMetadata();
-			metadata.setContentType("application/json");
-			metadata.setContentLength(content.length());
-
-			context.getLogger().log("Uploading to S3: " + fileName);
-			s3Client.putObject(bucketName, fileName, inputStream, metadata);
-
-			context.getLogger().log("Successfully uploaded " + fileName + " to " + bucketName);
-			return "Execution completed successfully";
-		} catch (Exception e) {
-			context.getLogger().log("Error uploading to S3: " + e.getMessage());
-			throw new RuntimeException(e);
-		}
-	}
-
-	private List<String> generateUUIDs() {
+  private static List<String> generateUUIDs() {
     int countOfUuids = 10;
     List<String> uuids = new ArrayList<>(countOfUuids);
-		for (int i = 0; i < countOfUuids; i++) {
-			uuids.add(UUID.randomUUID().toString());
-		}
-		return uuids;
-	}
+    for (int i = 0; i < countOfUuids; i++) {
+      uuids.add(UUID.randomUUID().toString());
+    }
+    return uuids;
+  }
 }
