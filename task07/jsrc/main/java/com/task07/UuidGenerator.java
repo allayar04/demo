@@ -65,7 +65,7 @@ public class UuidGenerator implements RequestHandler<ScheduledEvent, String> {
 
   private static List<String> generateUUIDs() {
     int countOfUuids = 10;
-    List<String> uuids = new ArrayList<>(countOfUuids);
+    List<String> uuids = new ArrayList<>();
     for (int i = 0; i < countOfUuids; i++) {
       uuids.add(UUID.randomUUID().toString());
     }
