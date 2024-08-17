@@ -40,7 +40,7 @@ public class UuidGenerator implements RequestHandler<ScheduledEvent, String> {
 
   @Override
   public String handleRequest(ScheduledEvent event, Context context) {
-    String bucketName = System.getenv("cmtr-d2f4ab85-uuid-storage-test");
+    String bucketName = "cmtr-d2f4ab85-uuid-storage-test";
     if (bucketName == null || bucketName.isEmpty()) {
       throw new IllegalArgumentException("The bucket name environment variable is not set");
     }
