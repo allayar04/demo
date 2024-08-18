@@ -51,51 +51,67 @@ import java.util.UUID;
 		@EnvironmentVariable(key = "target_table", value = "${target_table}")
 })
 public class Processor implements RequestHandler<Object, String> {
-	private static final ObjectMapper mapper = new ObjectMapper();
-	private final AmazonDynamoDB client;
-	private final String tableName;
-
-	public Processor() {
-		this.client = AmazonDynamoDBClientBuilder.standard()
-				.withRegion(System.getenv("eu-central-1"))
-				.build();
-		this.tableName = "cmtr-d2f4ab85-Weather-test";
-	}
+	private final String tableName = "cmtr-d2f4ab85-Weather-test";
+	private final AmazonDynamoDB dynamoDB = AmazonDynamoDBClientBuilder.standard()
+			.withRegion("eu-central-1")
+			.build();
 
 	@Override
 	public String handleRequest(Object input, Context context) {
 		LambdaLogger logger = context.getLogger();
+
 		try {
+			// Fetch weather data from Open-Meteo API
 			String weatherData = GetOpenMeteo.getOpenMeteo();
-			Map<String, AttributeValue> weatherEntry = transformWeatherJsonToMap(weatherData);
-			logger.log("Weather Data: " + weatherEntry);
-			saveToDatabase(weatherEntry);
-			return "Weather forecast fetched and saved successfully";
+
+			// Parse the weather data
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode weatherNode = objectMapper.readTree(weatherData);
+
+			// Create the forecast JSON object based on the required schema
+			Map<String, AttributeValue> forecast = new HashMap<>();
+			forecast.put("elevation", new AttributeValue().withN(weatherNode.get("elevation").asText()));
+			forecast.put("generationtime_ms", new AttributeValue().withN(weatherNode.get("generationtime_ms").asText()));
+
+			// Process hourly data
+			JsonNode hourlyNode = weatherNode.get("hourly");
+			Map<String, AttributeValue> hourly = new HashMap<>();
+			hourly.put("temperature_2m", new AttributeValue().withNS(objectMapper.convertValue(hourlyNode.get("temperature_2m"), String[].class)));
+			hourly.put("time", new AttributeValue().withSS(objectMapper.convertValue(hourlyNode.get("time"), String[].class)));
+			forecast.put("hourly", new AttributeValue().withM(hourly));
+
+			// Process hourly_units data
+			JsonNode hourlyUnitsNode = weatherNode.get("hourly_units");
+			Map<String, AttributeValue> hourlyUnits = new HashMap<>();
+			hourlyUnits.put("temperature_2m", new AttributeValue(hourlyUnitsNode.get("temperature_2m").asText()));
+			hourlyUnits.put("time", new AttributeValue(hourlyUnitsNode.get("time").asText()));
+			forecast.put("hourly_units", new AttributeValue().withM(hourlyUnits));
+
+			forecast.put("latitude", new AttributeValue().withN(weatherNode.get("latitude").asText()));
+			forecast.put("longitude", new AttributeValue().withN(weatherNode.get("longitude").asText()));
+			forecast.put("timezone", new AttributeValue(weatherNode.get("timezone").asText()));
+			forecast.put("timezone_abbreviation", new AttributeValue(weatherNode.get("timezone_abbreviation").asText()));
+			forecast.put("utc_offset_seconds", new AttributeValue().withN(weatherNode.get("utc_offset_seconds").asText()));
+
+			// Prepare the item to be inserted into DynamoDB
+			Map<String, AttributeValue> item = new HashMap<>();
+			item.put("id", new AttributeValue(UUID.randomUUID().toString()));
+			item.put("forecast", new AttributeValue().withM(forecast));
+
+			// Create PutItemRequest
+			PutItemRequest request = new PutItemRequest()
+					.withTableName(tableName)
+					.withItem(item);
+
+			// Insert the item into DynamoDB
+			dynamoDB.putItem(request);
+
+			logger.log("Weather data inserted successfully into DynamoDB table: " + System.getenv("target_table"));
+
+			return "Weather data inserted successfully.";
 		} catch (Exception e) {
 			logger.log("Error: " + e.getMessage());
-			return "Failed to fetch or save weather data: " + e.getMessage();
+			return "Failed to insert weather data.";
 		}
-	}
-
-	private Map<String, AttributeValue> transformWeatherJsonToMap(String json) throws Exception {
-		JsonNode root = mapper.readTree(json);
-		Map<String, AttributeValue> weatherEntry = new HashMap<>();
-
-		weatherEntry.put("id", new AttributeValue(UUID.randomUUID().toString()));
-		weatherEntry.put("temperature", new AttributeValue().withN(
-				root.path("current").path("temperature_2m").asText()));
-		weatherEntry.put("windSpeed", new AttributeValue().withN(
-				root.path("current").path("wind_speed_10m").asText()));
-		weatherEntry.put("timestamp", new AttributeValue(
-				root.path("current").path("time").asText()));
-
-		return weatherEntry;
-	}
-
-	private void saveToDatabase(Map<String, AttributeValue> item) {
-		PutItemRequest putItemRequest = new PutItemRequest()
-				.withTableName(tableName)
-				.withItem(item);
-		client.putItem(putItemRequest);
 	}
 }
