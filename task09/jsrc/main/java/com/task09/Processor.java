@@ -71,46 +71,14 @@ public class Processor implements RequestHandler<Object, String> {
 			JsonNode weatherNode = objectMapper.readTree(weatherData);
 
 			// Create the forecast JSON object based on the required schema
-			Map<String, AttributeValue> forecast = new HashMap<>();
-			forecast.put("elevation", new AttributeValue().withN(weatherNode.get("elevation").asText()));
-			forecast.put("generationtime_ms", new AttributeValue().withN(weatherNode.get("generationtime_ms").asText()));
-
-			// Process hourly data
-			JsonNode hourlyNode = weatherNode.get("hourly");
-			List<AttributeValue> temperatureList = new ArrayList<>();
-			for (JsonNode tempNode : hourlyNode.get("temperature_2m")) {
-				temperatureList.add(new AttributeValue().withN(tempNode.asText()));
-			}
-			List<AttributeValue> timeList = new ArrayList<>();
-			for (JsonNode timeNode : hourlyNode.get("time")) {
-				timeList.add(new AttributeValue().withS(timeNode.asText()));
-			}
-			Map<String, AttributeValue> hourly = new HashMap<>();
-			hourly.put("temperature_2m", new AttributeValue().withL(temperatureList));
-			hourly.put("time", new AttributeValue().withL(timeList));
-			forecast.put("hourly", new AttributeValue().withM(hourly));
-
-			// Process hourly_units data
-			JsonNode hourlyUnitsNode = weatherNode.get("hourly_units");
-			Map<String, AttributeValue> hourlyUnits = new HashMap<>();
-			hourlyUnits.put("temperature_2m", new AttributeValue(hourlyUnitsNode.get("temperature_2m").asText()));
-			hourlyUnits.put("time", new AttributeValue(hourlyUnitsNode.get("time").asText()));
-			forecast.put("hourly_units", new AttributeValue().withM(hourlyUnits));
-
-			forecast.put("latitude", new AttributeValue().withN(weatherNode.get("latitude").asText()));
-			forecast.put("longitude", new AttributeValue().withN(weatherNode.get("longitude").asText()));
-			forecast.put("timezone", new AttributeValue(weatherNode.get("timezone").asText()));
-			forecast.put("timezone_abbreviation", new AttributeValue(weatherNode.get("timezone_abbreviation").asText()));
-			forecast.put("utc_offset_seconds", new AttributeValue().withN(weatherNode.get("utc_offset_seconds").asText()));
-
 			// Prepare the item to be inserted into DynamoDB
 			Map<String, AttributeValue> item = new HashMap<>();
 			item.put("id", new AttributeValue(UUID.randomUUID().toString()));
-			item.put("forecast", new AttributeValue().withM(forecast));
+			item.put("forecast", new AttributeValue().withM(objectMapper.convertValue(weatherNode, Map.class)));
 
 			// Create PutItemRequest
 			PutItemRequest request = new PutItemRequest()
-					.withTableName(tableName)
+					.withTableName(System.getenv(tableName))
 					.withItem(item);
 
 			// Insert the item into DynamoDB
