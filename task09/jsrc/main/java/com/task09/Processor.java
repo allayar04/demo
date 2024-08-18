@@ -23,7 +23,9 @@ import com.syndicate.deployment.model.RetentionSetting;
 
 import com.syndicate.deployment.model.lambda.url.AuthType;
 import com.syndicate.deployment.model.lambda.url.InvokeMode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -75,9 +77,17 @@ public class Processor implements RequestHandler<Object, String> {
 
 			// Process hourly data
 			JsonNode hourlyNode = weatherNode.get("hourly");
+			List<AttributeValue> temperatureList = new ArrayList<>();
+			for (JsonNode tempNode : hourlyNode.get("temperature_2m")) {
+				temperatureList.add(new AttributeValue().withN(tempNode.asText()));
+			}
+			List<AttributeValue> timeList = new ArrayList<>();
+			for (JsonNode timeNode : hourlyNode.get("time")) {
+				timeList.add(new AttributeValue().withS(timeNode.asText()));
+			}
 			Map<String, AttributeValue> hourly = new HashMap<>();
-			hourly.put("temperature_2m", new AttributeValue().withNS(objectMapper.convertValue(hourlyNode.get("temperature_2m"), String[].class)));
-			hourly.put("time", new AttributeValue().withSS(objectMapper.convertValue(hourlyNode.get("time"), String[].class)));
+			hourly.put("temperature_2m", new AttributeValue().withL(temperatureList));
+			hourly.put("time", new AttributeValue().withL(timeList));
 			forecast.put("hourly", new AttributeValue().withM(hourly));
 
 			// Process hourly_units data
