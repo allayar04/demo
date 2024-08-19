@@ -32,11 +32,11 @@
             <version>${syndicate.java.plugin.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.api.open-meteo</groupId>
+            <groupId>com.api.open_meteo</groupId>
             <artifactId>open_meteo_api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/open_meteo_api-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${basedir}/lib/open_meteo_api-1.0.0.jar</systemPath>
         </dependency>
     </dependencies>
 

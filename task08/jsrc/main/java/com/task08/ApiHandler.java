@@ -2,6 +2,7 @@ package com.task08;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+
 import com.api.open_meteo.GetOpenMeteo;
 import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaLayer;
@@ -23,7 +24,7 @@ import com.syndicate.deployment.model.lambda.url.InvokeMode;
 )
 @LambdaLayer(
 		layerName = "sdk-layer",
-		libraries = {"lib/open_meteo_api-1.0-SNAPSHOT.jar"},
+		libraries = {"lib/open_meteo_api-1.0.0.jar"},
 		runtime = DeploymentRuntime.JAVA17,
 		artifactExtension = ArtifactExtension.ZIP
 )
