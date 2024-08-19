@@ -17,13 +17,12 @@ import com.syndicate.deployment.annotations.lambda.LambdaHandler;
 import com.syndicate.deployment.annotations.lambda.LambdaLayer;
 import com.syndicate.deployment.annotations.lambda.LambdaUrlConfig;
 import com.syndicate.deployment.annotations.resources.DependsOn;
-import com.syndicate.deployment.model.ArtifactExtension;
-import com.syndicate.deployment.model.DeploymentRuntime;
-import com.syndicate.deployment.model.ResourceType;
-import com.syndicate.deployment.model.RetentionSetting;
-
+import com.syndicate.deployment.model.*;
 import com.syndicate.deployment.model.lambda.url.AuthType;
 import com.syndicate.deployment.model.lambda.url.InvokeMode;
+
+
+import com.syndicate.deployment.model.TracingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -35,6 +34,7 @@ import java.util.stream.StreamSupport;
     roleName = "processor-role",
     layers = {"sdk-layer"},
     isPublishVersion = false,
+    tracingMode = TracingMode.Active,
     runtime = DeploymentRuntime.JAVA17,
     logsExpiration = RetentionSetting.SYNDICATE_ALIASES_SPECIFIED
 )
