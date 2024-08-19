@@ -1,5 +1,6 @@
 package com.task10.handler;
 
+import static com.task10.utils.ResourceNames.SC_200;
 import static com.task10.utils.ResourceNames.SC_400;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -21,27 +22,23 @@ public class PostSignUpHandler extends CognitoSupport implements RequestHandler<
   public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent requestEvent, Context context) {
     try {
       SignUp signUp = SignUp.fromJson(requestEvent.getBody());
+      context.getLogger().log("Sign up: " + signUp);
 
-      // Sign up
       String userId = cognitoSignUp(signUp)
           .user().attributes().stream()
           .filter(attr -> attr.name().equals("sub"))
           .map(AttributeType::value)
           .findAny()
-          .orElseThrow(() -> new RuntimeException("Sub not found!"));
-      // Confirm sign up
-      String idToken = confirmSignUp(signUp)
-          .authenticationResult()
-          .idToken();
+          .orElseThrow(() -> new RuntimeException("Sub not found."));
+      context.getLogger().log("User ID: " + userId);
 
       return new APIGatewayProxyResponseEvent()
-          .withStatusCode(200)
+          .withStatusCode(SC_200)
           .withBody(new JSONObject()
-              .put("message", "User has been successfully signed up.")
-              .put("userId", userId)
-              .put("accessToken", idToken)
+              .put("message", "User has been successfully signed up!")
               .toString());
     } catch (Exception e) {
+      context.getLogger().log("Error in PostSignUpHandler: " + e.getMessage());
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(SC_400)
           .withBody(new JSONObject().put("error", e.getMessage()).toString());
