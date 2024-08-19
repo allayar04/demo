@@ -40,7 +40,7 @@ import java.util.stream.StreamSupport;
 )
 @LambdaLayer(
     layerName = "sdk-layer",
-    libraries = {"lib/open_meteo_api-1.0-SNAPSHOT.jar"},
+    libraries = {"lib/open_meteo_api-1.0.0.jar"},
     runtime = DeploymentRuntime.JAVA17,
     artifactExtension = ArtifactExtension.ZIP
 )
