@@ -56,6 +56,12 @@
             <artifactId>dynamodb</artifactId>
             <version>2.27.1</version>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>cognitoidentityprovider</artifactId>
+            <version>2.20.90</version>
+        </dependency>
+
     </dependencies>
 
     <build>

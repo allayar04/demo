@@ -10,7 +10,9 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.task10.dto.SignUp;
 import org.json.JSONObject;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
+
+
 
 public class PostSignUpHandler extends CognitoSupport implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
@@ -38,14 +40,18 @@ public class PostSignUpHandler extends CognitoSupport implements RequestHandler<
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(SC_200)
           .withBody(new JSONObject()
-              .put("message", "User has been successfully signed up.")
+              .put("message", "User signed up successfully.")
               .put("userId", userId)
               .put("accessToken", idToken)
               .toString());
+    }catch (UsernameExistsException e) {
+      return new APIGatewayProxyResponseEvent()
+          .withStatusCode(SC_400)
+          .withBody(new JSONObject().put("error", "User already exists.").toString());
     }
     catch (Exception e) {
       return new APIGatewayProxyResponseEvent()
-          .withStatusCode(SC_200)
+          .withStatusCode(SC_400)
           .withBody(new JSONObject().put("error", e.getMessage()).toString());
     }
   }
