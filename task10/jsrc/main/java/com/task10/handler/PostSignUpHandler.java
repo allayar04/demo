@@ -29,18 +29,23 @@ public class PostSignUpHandler extends CognitoSupport implements RequestHandler<
           .filter(attr -> attr.name().equals("sub"))
           .map(AttributeType::value)
           .findAny()
-          .orElseThrow(() -> new RuntimeException("Sub not found."));
-      context.getLogger().log("User ID: " + userId);
+          .orElseThrow(() -> new RuntimeException("User ID not found in the response."));
+      // Confirm sign up
+      String idToken = confirmSignUp(signUp)
+          .authenticationResult()
+          .idToken();
 
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(SC_200)
           .withBody(new JSONObject()
-              .put("message", "User has been successfully signed up!")
+              .put("message", "User has been successfully signed up.")
+              .put("userId", userId)
+              .put("accessToken", idToken)
               .toString());
-    } catch (Exception e) {
-      context.getLogger().log("Error in PostSignUpHandler: " + e.getMessage());
+    }
+    catch (Exception e) {
       return new APIGatewayProxyResponseEvent()
-          .withStatusCode(SC_400)
+          .withStatusCode(SC_200)
           .withBody(new JSONObject().put("error", e.getMessage()).toString());
     }
   }
