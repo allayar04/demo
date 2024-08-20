@@ -1,4 +1,4 @@
-package com.task10;
+package com.task11;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -13,15 +13,15 @@ import com.syndicate.deployment.model.ResourceType;
 import com.syndicate.deployment.model.RetentionSetting;
 
 import com.syndicate.deployment.model.environment.ValueTransformer;
-import com.task10.dto.RouteKey;
-import com.task10.handler.GetReservationsHandler;
-import com.task10.handler.GetTableByIdHandler;
-import com.task10.handler.GetTablesHandler;
-import com.task10.handler.PostReservationHandler;
-import com.task10.handler.PostSignInHandler;
-import com.task10.handler.PostSignUpHandler;
-import com.task10.handler.PostTableHandler;
-import com.task10.handler.RouteNotImplementedHandler;
+import com.task11.dto.RouteKey;
+import com.task11.handler.GetReservationsHandler;
+import com.task11.handler.GetTableByIdHandler;
+import com.task11.handler.GetTablesHandler;
+import com.task11.handler.PostReservationHandler;
+import com.task11.handler.PostSignInHandler;
+import com.task11.handler.PostSignUpHandler;
+import com.task11.handler.PostTableHandler;
+import com.task11.handler.RouteNotImplementedHandler;
 import java.util.Map;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;

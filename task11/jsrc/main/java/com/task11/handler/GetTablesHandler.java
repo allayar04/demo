@@ -1,9 +1,6 @@
-package com.task10.handler;
+package com.task11.handler;
 
-import static com.task10.utils.ResourceNames.REGION;
-import static com.task10.utils.ResourceNames.SC_200;
-import static com.task10.utils.ResourceNames.SC_500;
-import static com.task10.utils.ResourceNames.TABLE_NAME;
+import static com.task11.utils.ResourceNames.*;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;

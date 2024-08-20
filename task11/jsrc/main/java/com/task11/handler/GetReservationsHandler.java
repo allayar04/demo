@@ -1,4 +1,4 @@
-package com.task10.handler;
+package com.task11.handler;
 
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -10,10 +10,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import static com.task10.utils.ResourceNames.REGION;
-import static com.task10.utils.ResourceNames.SC_200;
-import static com.task10.utils.ResourceNames.SC_400;
-import static com.task10.utils.ResourceNames.TABLE_NAME;
+import static com.task11.utils.ResourceNames.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

@@ -1,6 +1,6 @@
-package com.task10.handler;
+package com.task11.handler;
 
-import static com.task10.utils.ResourceNames.SC_501;
+import static com.task11.utils.ResourceNames.SC_501;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;

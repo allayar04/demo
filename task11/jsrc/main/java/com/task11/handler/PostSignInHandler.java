@@ -1,15 +1,16 @@
-package com.task10.handler;
+package com.task11.handler;
 
-import static com.task10.utils.ResourceNames.SC_200;
-import static com.task10.utils.ResourceNames.SC_400;
+
+import static com.task11.utils.ResourceNames.*;
+import com.task11.dto.*;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.task10.dto.SignIn;
 import org.json.JSONObject;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+
 
 public class PostSignInHandler extends CognitoSupport implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 

@@ -1,4 +1,4 @@
-package com.task10.utils;
+package com.task11.utils;
 
 public class ResourceNames {
   public static final String TABLE_NAME = "cmtr-d2f4ab85-";
