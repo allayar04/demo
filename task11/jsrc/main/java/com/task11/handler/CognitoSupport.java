@@ -1,5 +1,6 @@
 package com.task11.handler;
 
+import com.task11.dto.SignUp;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
@@ -38,7 +39,7 @@ public abstract class CognitoSupport {
         .build());
   }
 
-  protected AdminCreateUserResponse cognitoSignUp(com.task10.dto.SignUp signUp) {
+  protected AdminCreateUserResponse cognitoSignUp(SignUp signUp) {
     return cognitoClient.adminCreateUser(AdminCreateUserRequest.builder()
         .userPoolId(userPoolId)
         .username(signUp.email())
@@ -66,7 +67,7 @@ public abstract class CognitoSupport {
         .build());
   }
 
-  protected AdminRespondToAuthChallengeResponse confirmSignUp(com.task10.dto.SignUp signUp) {
+  protected AdminRespondToAuthChallengeResponse confirmSignUp(SignUp signUp) {
     AdminInitiateAuthResponse adminInitiateAuthResponse = cognitoSignIn(signUp.email(), signUp.password());
 
     if (!ChallengeNameType.NEW_PASSWORD_REQUIRED.name().equals(adminInitiateAuthResponse.challengeNameAsString())) {
