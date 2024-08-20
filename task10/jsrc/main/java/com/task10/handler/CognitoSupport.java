@@ -40,6 +40,12 @@ public abstract class CognitoSupport {
   }
 
   protected AdminCreateUserResponse cognitoSignUp(SignUp signUp) {
+    if (!signUp.email().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+      throw new IllegalArgumentException("Invalid email format");
+    }
+    if (!signUp.password().matches("^(?=.*[A-Za-z0-9])(?=.*[_$%^*]).{12,}$")) {
+      throw new IllegalArgumentException("Invalid password format");
+    }
     return cognitoClient.adminCreateUser(AdminCreateUserRequest.builder()
         .userPoolId(userPoolId)
         .username(signUp.email())
