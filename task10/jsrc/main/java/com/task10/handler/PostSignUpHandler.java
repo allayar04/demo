@@ -35,7 +35,7 @@ public class PostSignUpHandler extends CognitoSupport implements RequestHandler<
       // Confirm sign up
       String idToken = confirmSignUp(signUp)
           .authenticationResult()
-          .idToken();
+          .accessToken();
 
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(SC_200)
