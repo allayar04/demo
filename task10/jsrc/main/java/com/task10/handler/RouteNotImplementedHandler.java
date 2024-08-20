@@ -13,7 +13,8 @@ public class RouteNotImplementedHandler implements
 
   @Override
   public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent requestEvent, Context context) {
-
+    context.getLogger().log("Handler for the %s method on the %s path is not implemented."
+        .formatted(requestEvent.getHttpMethod(), requestEvent.getPath()));
     return new APIGatewayProxyResponseEvent()
         .withStatusCode(SC_501)
         .withBody(
